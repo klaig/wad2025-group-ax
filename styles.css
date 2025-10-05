@@ -1,0 +1,199 @@
+/* Nord Theme
+   Polar Night (dark): #2E3440, #3B4252, #434C5E, #4C566A
+   Snow Storm (light): #D8DEE9, #E5E9F0, #ECEFF4
+   Frost (blue/cyan): #8FBCBB, #88C0D0, #81A1C1, #5E81AC
+   Aurora (accent): #BF616A (red), #D08770 (orange), #EBCB8B (yellow), #A3BE8C (green), #B48EAD (purple)
+*/
+
+/* Reset https://en.wikipedia.org/wiki/Reset_style_sheet */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ECEFF4;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ID Selector */
+#main-header {
+    background-color: #5E81AC;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Class Selector */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-btn {
+    color: #ECEFF4;
+    background-color: transparent;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+/* Pseudo-Class */
+.nav-btn:hover {
+    background-color: #4C566A;
+}
+
+.profile-pic img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    filter: invert(1);
+}
+
+/* Flexbox */
+#main-container {
+    display: flex;
+    width: 100%;
+    padding: 20px;
+    gap: 20px;
+    flex: 1;
+}
+
+.sidebar {
+    background-color: #E5E9F0;
+    border-radius: 8px;
+    flex: 0 0 200px;
+    min-height: 400px;
+}
+
+.feed {
+    border-radius: 8px;
+    padding: 20px;
+    flex: 1;
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+/* Pseudo-Element - stupid but required */
+.post:first-child::before {
+    content: "📌 ";
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+.post {
+    border: 1px solid #4C566A;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+/* Descendant Selector */
+.post-header img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+}
+
+.post-date {
+    color: #4C566A;
+    font-size: 14px;
+}
+
+.post-content {
+    margin-bottom: 12px;
+}
+
+.post-content p {
+    line-height: 1.5;
+    color: #2E3440;
+}
+
+.post-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.like-btn {
+    background-color: transparent;
+    border: none;
+    color: #4C566A;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.like-btn:hover {
+    background-color: #D8DEE9;
+    color: #5E81AC;
+}
+
+/* Child Selector */
+.feed > .post {
+    background-color: white;
+}
+
+/* Adjacent Sibling Selector */
+.post-header + .post-content {
+    margin-top: 8px;
+}
+
+/* General Sibling Selector */
+.post-header ~ .post-footer {
+    padding-top: 8px;
+    border-top: 1px solid #D8DEE9;
+}
+
+#main-footer {
+    background-color: #5E81AC;
+    color: #ECEFF4;
+    text-align: center;
+    padding: 20px;
+    margin-top: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+
+    .feed {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-links {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .post {
+        padding: 12px;
+    }
+}
