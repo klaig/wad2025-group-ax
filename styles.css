@@ -277,6 +277,11 @@ body {
     color: #3C4857;
 }
 
+.login-subtitle .link {
+    color: #5E81AC;
+    text-decoration: none;
+}
+
 .login-form {
     display: flex;
     flex-direction: column;
@@ -329,6 +334,11 @@ body {
 
 /* Pseudo-class */
 .forgot .link:hover {
+    text-decoration: underline;
+}
+
+/* Pseudo-class */
+.login-subtitle .link:hover {
     text-decoration: underline;
 }
 
