@@ -20,9 +20,12 @@
 
             <!-- Right side: profile picture -->
             <div class="profile-pic">
-                <a href="login.html">
-                    <img src="images/big-profile-pic.png" alt="PFP">
-                </a>
+                <img src="images/big-profile-pic.png" alt="PFP" id="profile-icon">
+                <div class="dropdown-menu" id="dropdown">
+                    <p id="dropdown-name"></p>
+                    <p id="dropdown-email"></p>
+                    <a href="#" id="logout-btn">Logout</a>
+                </div>
             </div>
         </nav>
     </header>
@@ -116,6 +119,40 @@
     <footer id="main-footer">
         <p>Footer</p>
     </footer>
+
+    <!-- Script for profile dropdown and logout -->
+    <script>
+        const profileIcon = document.getElementById("profile-icon");
+        const dropdown = document.getElementById("dropdown");
+        const nameField = document.getElementById("dropdown-name");
+        const emailField = document.getElementById("dropdown-email");
+        const logoutBtn = document.getElementById("logout-btn");
+        // Load user info from local storage or get defaults
+        const username = localStorage.getItem("username") || "John Doe";
+        const email = localStorage.getItem("email") || "john.doe@ut.ee";
+
+        nameField.textContent = username;
+        emailField.textContent = email;
+
+        // Toggle dropdown on profile icon click
+        profileIcon.addEventListener("click", () => {
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!profileIcon.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = "none";
+            }
+        });
+
+        // Logout clears localstorage and redirects
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = "login.html";
+        });
+    </script>
 
 </body>
 </html>
