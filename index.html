@@ -37,78 +37,7 @@
 
         <!-- Center area -->
         <section class="feed">
-            <!-- Post 1 -->
-            <article class="post">
-                <div class="post-header">
-                    <img src="images/icons8-test-account-50.png" alt="PFP" class="post-avatar">
-                    <span class="post-date">Oct 14, 2022</span>
-                </div>
-                <div class="post-content">
-                    <img src="images/stock1.jpg" alt="Post image" class="post-image">
-                    <p>Yes very nice wood</p>
-                </div>
-                <div class="post-footer">
-                    <button class="like-btn"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-                </div>
-            </article>
-
-            <!-- Post 2 -->
-            <article class="post">
-                <div class="post-header">
-                    <img src="images/icons8-test-account-50.png" alt="PFP" class="post-avatar">
-                    <span class="post-date">Oct 4, 2022</span>
-                </div>
-                <div class="post-content">
-                    <p>Anyone knows in which room is the lab today?</p>
-                </div>
-                <div class="post-footer">
-                    <button class="like-btn"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-                </div>
-            </article>
-
-            <!-- Post 3 -->
-            <article class="post">
-                <div class="post-header">
-                    <img src="images/icons8-test-account-50.png" alt="User avatar" class="post-avatar">
-                    <span class="post-date">Sep 28, 2022</span>
-                </div>
-                <div class="post-content">
-                    <img src="images/tartu2022.jpg" alt="Post image" class="post-image">
-                    <p >Tartu 2022</p>
-                </div>
-                <div class="post-footer">
-                    <button class="like-btn"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-                </div>
-            </article>
-
-            <!-- Post 4 -->
-            <article class="post">
-                <div class="post-header">
-                    <img src="images/icons8-test-account-50.png" alt="User avatar" class="post-avatar">
-                    <span class="post-date">Sep 15, 2022</span>
-                </div>
-                <div class="post-content">
-                    <p >Just finished my Web Development assignment!</p>
-                </div>
-                <div class="post-footer">
-                    <button class="like-btn"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-                </div>
-            </article>
-
-            <!-- Post 5 -->
-            <article class="post">
-                <div class="post-header">
-                    <img src="images/icons8-test-account-50.png" alt="User avatar" class="post-avatar">
-                    <span class="post-date">Sep 10, 2022</span>
-                </div>
-                <div class="post-content">
-                    <img src="images/potatoes.jpg" alt="Post image" class="post-image">
-                    <p >I love potatoes</p>
-                </div>
-                <div class="post-footer">
-                    <button class="like-btn"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-                </div>
-            </article>
+            <!-- Posts will be dynamically loaded here -->
         </section>
 
         <!-- Right empty sidebar -->
@@ -152,6 +81,88 @@
             localStorage.clear();
             window.location.href = "login.html";
         });
+    </script>
+
+    <!-- Script for loading posts -->
+    <script>
+        // Fetch from local JSON file
+        fetch('posts.json')
+
+        // Fetch from online URI (commented out)
+        // fetch('https://www.jsonkeeper.com/b/642A3')
+            .then(response => response.json())
+            .then(data => {
+                const feed = document.querySelector('.feed');
+                const posts = data.Posts;
+
+                posts.forEach((post, index) => {
+                    const article = document.createElement('article');
+                    article.className = 'post';
+
+                    // Create post header
+                    const header = document.createElement('div');
+                    header.className = 'post-header';
+
+                    const avatar = document.createElement('img');
+                    avatar.src = 'images/icons8-test-account-50.png';
+                    avatar.alt = post.author;
+                    avatar.className = 'post-avatar';
+
+                    const authorName = document.createElement('span');
+                    authorName.className = 'post-author';
+                    authorName.textContent = post.author;
+
+                    const date = document.createElement('span');
+                    date.className = 'post-date';
+                    date.textContent = post.date;
+
+                    header.appendChild(avatar);
+                    header.appendChild(authorName);
+                    header.appendChild(date);
+
+                    // Create post content
+                    const content = document.createElement('div');
+                    content.className = 'post-content';
+
+                    // Add image if exists
+                    if (post.image) {
+                        const img = document.createElement('img');
+                        img.src = post.image;
+                        img.alt = post.title;
+                        img.className = 'post-image';
+                        content.appendChild(img);
+                    }
+
+                    // Add text content
+                    const text = document.createElement('p');
+                    if (post.description) {
+                        text.textContent = post.description;
+                    } else if (post.title) {
+                        text.textContent = post.title;
+                    }
+                    content.appendChild(text);
+
+                    // Create post footer
+                    const footer = document.createElement('div');
+                    footer.className = 'post-footer';
+
+                    const likeBtn = document.createElement('button');
+                    likeBtn.className = 'like-btn';
+                    likeBtn.innerHTML = '<i class="fa-regular fa-thumbs-up"></i> Like';
+
+                    footer.appendChild(likeBtn);
+
+                    // Assemble the post
+                    article.appendChild(header);
+                    article.appendChild(content);
+                    article.appendChild(footer);
+
+                    feed.appendChild(article);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading posts:', error);
+            });
     </script>
 
 </body>

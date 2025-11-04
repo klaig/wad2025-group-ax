@@ -126,6 +126,10 @@ body {
     align-items: center;
 }
 
+.post-author {
+    margin-right: 10px;
+}
+
 .post-date {
     color: #4C566A;
     font-size: 14px;
