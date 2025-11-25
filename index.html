@@ -3,167 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homework 1</title>
+    <title>PostIt - HW3</title>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <!-- Vue 3 + Vuex 4 + Vue Router 4 from CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vuex@4/dist/vuex.global.js"></script>
+    <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header id="main-header">
-        <nav class="navbar">
-            <!-- Left side: navigation links -->
-            <div class="nav-links">
-                <a href="index.html" class="nav-btn">Home</a>
-                <a href="addPost.html" class="nav-btn">Add Post</a>
-            </div>
+    <div id="app"></div>
 
-            <!-- Right side: profile picture -->
-            <div class="profile-pic">
-                <img src="images/big-profile-pic.png" alt="PFP" id="profile-icon">
-                <div class="dropdown-menu" id="dropdown">
-                    <p id="dropdown-name"></p>
-                    <p id="dropdown-email"></p>
-                    <a href="#" id="logout-btn">Logout</a>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Main content -->
-    <main id="main-container">
-        <!-- Left empty sidebar -->
-        <aside class="sidebar sidebar-left"></aside>
-
-        <!-- Center area -->
-        <section class="feed">
-            <!-- Posts will be dynamically loaded here -->
-        </section>
-
-        <!-- Right empty sidebar -->
-        <aside class="sidebar sidebar-right"></aside>
-    </main>
-
-    <!-- Footer -->
-    <footer id="main-footer">
-        <p>Footer</p>
-    </footer>
-
-    <!-- Script for profile dropdown and logout -->
     <script>
-        const profileIcon = document.getElementById("profile-icon");
-        const dropdown = document.getElementById("dropdown");
-        const nameField = document.getElementById("dropdown-name");
-        const emailField = document.getElementById("dropdown-email");
-        const logoutBtn = document.getElementById("logout-btn");
-        // Load user info from local storage or get defaults
-        const username = localStorage.getItem("username") || "John Doe";
-        const email = localStorage.getItem("email") || "john.doe@ut.ee";
+        const { createApp } = Vue
+        const { createStore } = Vuex
+        const { createRouter, createWebHashHistory } = VueRouter
 
-        nameField.textContent = username;
-        emailField.textContent = email;
+        // VUEX STORE
+        const store = createStore({
+            state() {
+                return {
+                    posts: []
+                }
+            },
 
-        // Toggle dropdown on profile icon click
-        profileIcon.addEventListener("click", () => {
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-        });
+            getters: {
+                allPosts: (state) => state.posts,
+                getPostById: (state) => (id) => state.posts.find(p => p.id === id)
+            },
 
-        // Close dropdown when clicking outside
-        document.addEventListener("click", (e) => {
-            if (!profileIcon.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = "none";
+            mutations: {
+                SET_POSTS(state, posts) {
+                    state.posts = posts
+                },
+                INCREMENT_LIKE(state, postId) {
+                    const post = state.posts.find(p => p.id === postId)
+                    if (post) post.likes++
+                },
+                RESET_ALL_LIKES(state) {
+                    state.posts.forEach(post => post.likes = 0)
+                }
+            },
+
+            actions: {
+                async fetchPosts({ commit }) {
+                    const response = await fetch('posts.json')
+                    const data = await response.json()
+                    commit('SET_POSTS', data.Posts)
+                },
+                likePost({ commit }, postId) {
+                    commit('INCREMENT_LIKE', postId)
+                },
+                resetLikes({ commit }) {
+                    commit('RESET_ALL_LIKES')
+                }
             }
-        });
+        })
 
-        // Logout clears localstorage and redirects
-        logoutBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = "login.html";
-        });
-    </script>
+        // COMPONENTS
+        const HeaderComponent = {
+            template: `
+                <header id="main-header">
+                    <nav class="navbar">
+                        <div class="nav-links">
+                            <router-link to="/" class="nav-btn">Home</router-link>
+                            <router-link to="/signup" class="nav-btn">Sign up</router-link>
+                        </div>
+                    </nav>
+                </header>
+            `
+        }
 
-    <!-- Script for loading posts -->
-    <script>
-        // Fetch from local JSON file
-        fetch('posts.json')
+        const FooterComponent = {
+            template: `
+                <footer id="main-footer">
+                    <p>&copy; 2025 Group-AX. All rights reserved.</p>
+                </footer>
+            `
+        }
 
-        // Fetch from online URI (commented out)
-        // fetch('https://www.jsonkeeper.com/b/642A3')
-            .then(response => response.json())
-            .then(data => {
-                const feed = document.querySelector('.feed');
-                const posts = data.Posts;
+        const PostComponent = {
+            props: ['post'],
+            template: `
+                <article class="post">
+                    <div class="post-header">
+                        <img src="images/icons8-test-account-50.png" :alt="post.author" class="post-avatar">
+                        <span class="post-author">{{ post.author }}</span>
+                        <span class="post-date">{{ post.date }}</span>
+                    </div>
+                    <div class="post-content">
+                        <img v-if="post.image" :src="post.image" :alt="post.title" class="post-image">
+                        <p>{{ post.description || post.title }}</p>
+                    </div>
+                    <div class="post-footer">
+                        <button class="like-btn" @click="likePost">
+                            <i class="fa-regular fa-thumbs-up"></i> Like
+                        </button>
+                        <span class="like-count">{{ post.likes }} likes</span>
+                    </div>
+                </article>
+            `,
+            methods: {
+                likePost() {
+                    this.$store.dispatch('likePost', this.post.id)
+                }
+            }
+        }
 
-                posts.forEach((post, index) => {
-                    const article = document.createElement('article');
-                    article.className = 'post';
+        const MainPage = {
+            template: `
+                <div>
+                    <post-component
+                        v-for="post in posts"
+                        :key="post.id"
+                        :post="post">
+                    </post-component>
+                    <div class="reset-container">
+                        <button class="reset-btn" @click="resetLikes">Reset likes</button>
+                    </div>
+                </div>
+            `,
+            computed: {
+                posts() {
+                    return this.$store.getters.allPosts
+                }
+            },
+            methods: {
+                resetLikes() {
+                    this.$store.dispatch('resetLikes')
+                }
+            }
+        }
 
-                    // Create post header
-                    const header = document.createElement('div');
-                    header.className = 'post-header';
+        const SignupPage = {
+            template: `
+                <div id="signup-page-container">
+                    <div class="signup-card">
+                        <h3>Create an Account</h3>
+                        <form @submit.prevent="validateAndSubmit" class="signup-form">
+                            <div class="signup-form-group">
+                                <label for="email">Email</label>
+                                <div class="signup-input-container">
+                                    <input type="email" id="email" v-model="email" placeholder="Email" required>
+                                </div>
+                            </div>
 
-                    const avatar = document.createElement('img');
-                    avatar.src = 'images/icons8-test-account-50.png';
-                    avatar.alt = post.author;
-                    avatar.className = 'post-avatar';
+                            <div class="signup-form-group">
+                                <label for="password">Password</label>
+                                <div class="signup-input-container">
+                                    <input type="password" id="password" v-model="password" placeholder="Password" required>
+                                </div>
+                            </div>
 
-                    const authorName = document.createElement('span');
-                    authorName.className = 'post-author';
-                    authorName.textContent = post.author;
+                            <button type="submit" class="signup-submit-btn">Signup</button>
 
-                    const date = document.createElement('span');
-                    date.className = 'post-date';
-                    date.textContent = post.date;
+                            <div v-if="errors.length" class="validation-errors">
+                                <p>The password is not valid:</p>
+                                <ul>
+                                    <li v-for="(error, index) in errors" :key="index">
+                                        - {{ error }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `,
+            data() {
+                return {
+                    email: '',
+                    password: '',
+                    errors: []
+                }
+            },
+            methods: {
+                validateAndSubmit() {
+                    this.errors = [];
+                    const p = this.password;
 
-                    header.appendChild(avatar);
-                    header.appendChild(authorName);
-                    header.appendChild(date);
-
-                    // Create post content
-                    const content = document.createElement('div');
-                    content.className = 'post-content';
-
-                    // Add image if exists
-                    if (post.image) {
-                        const img = document.createElement('img');
-                        img.src = post.image;
-                        img.alt = post.title;
-                        img.className = 'post-image';
-                        content.appendChild(img);
+                    if (p.length < 8 || p.length >= 15) {
+                        this.errors.push("Password must be at least 8 characters and less than 15 characters.");
                     }
 
-                    // Add text content
-                    const text = document.createElement('p');
-                    if (post.description) {
-                        text.textContent = post.description;
-                    } else if (post.title) {
-                        text.textContent = post.title;
+                    if (!/[A-Z]/.test(p)) {
+                        this.errors.push("Includes at least one uppercase alphabet character.");
                     }
-                    content.appendChild(text);
 
-                    // Create post footer
-                    const footer = document.createElement('div');
-                    footer.className = 'post-footer';
+                    const lowercaseMatches = p.match(/[a-z]/g) || [];
+                    if (lowercaseMatches.length < 2) {
+                        this.errors.push("Includes at least two lowercase alphabet characters.");
+                    }
 
-                    const likeBtn = document.createElement('button');
-                    likeBtn.className = 'like-btn';
-                    likeBtn.innerHTML = '<i class="fa-regular fa-thumbs-up"></i> Like';
+                    if (!/[0-9]/.test(p)) {
+                        this.errors.push("Includes at least one numeric value.");
+                    }
 
-                    footer.appendChild(likeBtn);
+                    if (!/^[A-Z]/.test(p)) {
+                        this.errors.push("It should start with an uppercase alphabet character.");
+                    }
 
-                    // Assemble the post
-                    article.appendChild(header);
-                    article.appendChild(content);
-                    article.appendChild(footer);
+                    if (!/_/.test(p)) {
+                        this.errors.push("It should include the character \"_\".");
+                    }
 
-                    feed.appendChild(article);
-                });
-            })
-            .catch(error => {
-                console.error('Error loading posts:', error);
-            });
+                    if (this.errors.length === 0) {
+                        alert("Signup successful!");
+                        this.$router.push('/'); 
+                    }
+                }
+            }
+        }
+
+        // ROUTER
+        const routes = [
+            { path: '/', component: MainPage },
+            { path: '/signup', component: SignupPage }
+        ]
+
+        const router = createRouter({
+            history: createWebHashHistory(),
+            routes
+        })
+
+        // APP
+        const app = createApp({
+            template: `
+                <header-component></header-component>
+                <main id="main-container">
+                    <aside class="sidebar sidebar-left"></aside>
+                    <section class="feed">
+                        <router-view></router-view>
+                    </section>
+                    <aside class="sidebar sidebar-right"></aside>
+                </main>
+                <footer-component></footer-component>
+            `,
+            mounted() {
+                this.$store.dispatch('fetchPosts')
+            }
+        })
+
+        app.component('header-component', HeaderComponent)
+        app.component('footer-component', FooterComponent)
+        app.component('post-component', PostComponent)
+
+        app.use(store)
+        app.use(router)
+
+        app.mount('#app')
     </script>
-
 </body>
 </html>
