@@ -169,6 +169,38 @@ body {
     color: #5E81AC;
 }
 
+.like-count {
+    color: #4C566A;
+    font-size: 14px;
+    margin-left: auto;
+}
+
+.post-footer {
+    display: flex;
+    align-items: center;
+}
+
+.reset-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.reset-btn {
+    background-color: #5E81AC;
+    color: #ECEFF4;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.reset-btn:hover {
+    background-color: #81A1C1;
+}
+
 .text-container {
     display: flex;
     justify-content: center;
