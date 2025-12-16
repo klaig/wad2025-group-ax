@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getAllPosts, getPostById, incrementLike, resetAllLikes } from '../models/index.js'
+import { getAllPosts, getPostById, incrementLike, resetAllLikes, addPost, deleteAllPosts } from '../models/index.js'
 
 const router = Router()
 
@@ -14,17 +14,40 @@ router.get('/', async (req, res) => {
     }
 })
 
-// GET /api/posts/:id
-router.get('/:id', async (req, res) => {
+// POST /api/posts
+router.post('/', async (req, res) => {
     try {
-        const post = await getPostById(req.params.id)
-        if (!post) {
-            return res.status(404).json({ error: 'Post not found' })
+        const {author, date, title, description, image} = req.body
+        if (!author || !date) {
+            return res.status(400).json({error: 'author and date are required' })
         }
-        res.json(post)
+        const post = await addPost({author, date, title, description, image})
+        res.status(201).json(post)
     } catch (error) {
-        console.error('Error fetching post:', error)
-        res.status(500).json({ error: 'Failed to fetch post' })
+        console.error('Error adding post:', error)
+        res.status(500).json({ error: 'Failed to add post'})
+    }
+})
+
+// DELETE /api/posts
+router.delete('/', async (req, res) => {
+    try {
+        await deleteAllPosts()
+        res.json({ success: true})
+    } catch (error) {
+        console.error('Error deleting all posts:', error)
+        res.status(500).json({ error: 'Failed to delete all posts'})
+    }
+})
+
+// POST /api/posts/reset-likes
+router.post('/reset-likes', async (req, res) => {
+    try {
+        await resetAllLikes()
+        res.json({ success: true })
+    } catch (error) {
+        console.error('Error resetting likes:', error)
+        res.status(500).json({ error: 'Failed to reset likes' })
     }
 })
 
@@ -42,14 +65,17 @@ router.post('/:id/like', async (req, res) => {
     }
 })
 
-// POST /api/posts/reset-likes
-router.post('/reset-likes', async (req, res) => {
+// GET /api/posts/:id
+router.get('/:id', async (req, res) => {
     try {
-        await resetAllLikes()
-        res.json({ success: true })
+        const post = await getPostById(req.params.id)
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' })
+        }
+        res.json(post)
     } catch (error) {
-        console.error('Error resetting likes:', error)
-        res.status(500).json({ error: 'Failed to reset likes' })
+        console.error('Error fetching post:', error)
+        res.status(500).json({ error: 'Failed to fetch post' })
     }
 })
 

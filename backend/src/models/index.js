@@ -29,3 +29,19 @@ export async function resetAllLikes() {
     const pool = await getPool()
     await pool.query('UPDATE posts SET likes = 0')
 }
+
+// Add new post
+export async function addPost({author, date, title, description, image}) {
+    const pool = await getPool()
+    const result = await pool.query('INSERT INTO posts (author, date, title, description, image, likes) VALUES ($1, $2, $3, $4, $5, 0) RETURNING *',
+        [author, date, title ?? null, description ?? null, image ?? null]
+    )
+    return result.rows[0]
+}
+
+// Delete all posts
+export async function deleteAllPosts() {
+    const pool = await getPool()
+    await pool.query('DELETE FROM posts')
+    
+}
