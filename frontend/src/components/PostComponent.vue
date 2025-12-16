@@ -1,4 +1,4 @@
- <template>
+<template>
     <article class="post" @click="openPost">
         <div class="post-header">
             <img src="/images/icons8-test-account-50.png" :alt="post.author" class="post-avatar">
@@ -10,7 +10,7 @@
             <p>{{ post.description || post.title }}</p>
         </div>
         <div class="post-footer">
-            <button class="like-btn" @click="likePost">
+            <button class="like-btn" @click.stop="likePost"> 
                 <i class="fa-regular fa-thumbs-up"></i> Like
             </button>
             <span class="like-count">{{ post.likes }} likes</span>
