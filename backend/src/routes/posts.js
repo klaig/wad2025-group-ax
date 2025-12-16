@@ -16,15 +16,17 @@ router.get('/', async (req, res) => {
     }
 })
 
-// POST /api/posts
 router.post('/', async (req, res) => {
+    const { content } = req.body 
+    const { id: userId, email: username } = req.user
+
+    if (!content) {
+        return res.status(400).json({ error: 'Post content is required.' })
+    }
+
     try {
-        const {author, date, title, description, image} = req.body
-        if (!author || !date) {
-            return res.status(400).json({error: 'author and date are required' })
-        }
-        const post = await addPost({author, date, title, description, image})
-        res.status(201).json(post)
+        const newPost = await addPost(userId, username, content) 
+        res.status(201).json(newPost)
     } catch (error) {
         console.error('Error adding post:', error)
         res.status(500).json({ error: 'Failed to add post'})
@@ -70,14 +72,20 @@ router.post('/:id/like', async (req, res) => {
 // PUT /api/posts/:id
 router.put('/:id', async (req, res) => {
     try {
-        const id = Number(req.params.id)
-        const { author, date, title, description, image} = req.body
-        if (!author || !date) {
-            return res.status(400).json({ error: 'author and date are required'})
+        const postId = Number(req.params.id)
+        const { content } = req.body 
+        const userId = req.user.id
+
+        if (!content) {
+            return res.status(400).json({ error: 'Post content is required for update.'})
         }
-        const updated = await updatePost(id, {author, date, title, description, image})
-        if (!updated) return res.status(404).json({ error: 'Post not found'})
-        res.json(updated)    
+        
+        const updated = await updatePost(postId, userId, { content }) 
+        
+        if (!updated) {
+            return res.status(404).json({ error: 'Post not found or you are not the author.'})
+        }
+        res.json(updated)     
     } catch (error) {
         console.error('Error updating post:', error)
         res.status(500).json({ error: 'Failed to update post'})

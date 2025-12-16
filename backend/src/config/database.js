@@ -77,19 +77,6 @@ async function initializeDatabase() {
     const client = await pool.connect()
 
     try {
-        // Create posts table
-        await client.query(`
-            CREATE TABLE IF NOT EXISTS posts (
-                id SERIAL PRIMARY KEY,
-                author VARCHAR(255) NOT NULL,
-                date DATE NOT NULL,
-                title VARCHAR(255),
-                description TEXT,
-                image VARCHAR(500),
-                likes INTEGER DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `)
         // Create users table
         await client.query(`
             CREATE TABLE IF NOT EXISTS users (
@@ -98,6 +85,20 @@ async function initializeDatabase() {
                 password VARCHAR(255) NOT NULL
             )
         `)
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS posts (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) NOT NULL, 
+                author VARCHAR(255) NOT NULL,
+                date DATE NOT NULL,
+                title VARCHAR(255),
+                description TEXT,
+                image VARCHAR(500),
+                likes INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
 
         console.log('Database tables created successfully')
 
@@ -130,13 +131,20 @@ async function seedPosts(client) {
 
         for (const post of posts) {
             await client.query(
-                `INSERT INTO posts (id, author, date, title, description, image, likes)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                [post.id, post.author, post.date, post.title, post.description || '', post.image || '', post.likes || 0]
+                `INSERT INTO posts (id, user_id, author, date, title, description, image, likes) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                [
+                    post.id, 
+                    1,
+                    post.author, 
+                    post.date, 
+                    post.title, 
+                    post.description || '', 
+                    post.image || '', 
+                    post.likes || 0
+                ]
             )
         }
-
-        // Reset the sequence to continue after seeded IDs
         await client.query(`SELECT setval('posts_id_seq', (SELECT MAX(id) FROM posts))`)
 
         console.log(`Seeded ${posts.length} posts from posts.json`)
