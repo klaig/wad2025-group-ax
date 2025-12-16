@@ -3,13 +3,15 @@ import MainPage from '../views/MainPage.vue'
 import SignupPage from '../views/SignupPage.vue'
 import LoginPage from '../views/LoginPage.vue'
 import PostPage from '../views/PostPage.vue'
+import ContactPage from '../views/ContactPage.vue'
 import store from '../store'
 
 const routes = [
     { path: '/', component: MainPage, meta: { requiresAuth: true } },
     { path: '/signup', component: SignupPage },
     { path: '/login', component: LoginPage },
-    { path: '/posts/:id', component: PostPage }
+    { path: '/posts/:id', component: PostPage },
+    { path: '/contact', component: ContactPage }
 ]
 
 const router = createRouter({

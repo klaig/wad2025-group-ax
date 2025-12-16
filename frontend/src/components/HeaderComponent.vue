@@ -3,7 +3,8 @@
         <nav class="navbar">
             <div class="nav-links">
                 <router-link to="/" class="nav-btn">Home</router-link>
-                
+                <router-link to="/contact" class="nav-btn">Contact</router-link>
+
                 <router-link v-if="!isAuthenticated" to="/login" class="nav-btn">Log in</router-link>
                 <router-link v-if="!isAuthenticated" to="/signup" class="nav-btn">Sign up</router-link>
                 
