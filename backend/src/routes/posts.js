@@ -1,7 +1,9 @@
 import { Router } from 'express'
+import { authenticateToken } from '../middleware/auth.js'
 import { getAllPosts, getPostById, incrementLike, resetAllLikes, addPost, deleteAllPosts, updatePost, deletePostById } from '../models/index.js'
 
 const router = Router()
+router.use(authenticateToken)
 
 // GET /api/posts
 router.get('/', async (req, res) => {

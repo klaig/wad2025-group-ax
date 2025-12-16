@@ -33,7 +33,7 @@ export default {
             return '/' + image
         },
         openPost() {
-            this.$router.push('/posts/${this.post.id}')
+            this.$router.push(`/posts/${this.post.id}`)
         }
     }
 }

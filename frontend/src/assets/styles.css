@@ -410,6 +410,63 @@ body {
     margin-top: 5px;
 }
 
+.login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    flex: 1;
+}
+
+.login-card {
+    background-color: #FFFFFF;
+    border: 1px solid #4C566A;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 420px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.05));
+    text-align: center;
+}
+
+.login-card .form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.login-card input {
+    padding: 10px;
+    border: 1px solid #4C566A;
+    border-radius: 6px;
+    background-color: #E5E9F0;
+    margin-top: 5px;
+}
+
+.btn-primary {
+    background-color: #5E81AC;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border: 1px solid #5E81AC;
+    color: #5E81AC;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
 @media (max-width: 768px) {
     .sidebar {
         display: none;

@@ -43,7 +43,7 @@ export default {
         }
     },
     methods: {
-        validateAndSubmit() {
+        async validateAndSubmit() {
             this.errors = [];
             const p = this.password;
 
@@ -73,8 +73,16 @@ export default {
             }
 
             if (this.errors.length === 0) {
-                alert("Signup successful!");
-                this.$router.push('/');
+                try {
+                    await this.$store.dispatch('signup', {
+                        email: this.email,
+                        password: this.password
+                    })
+                    alert("Signup successful!")
+                    this.$router.push('/')
+                } catch (e) {
+                    this.errors.push("Server error: " + e.message)
+                }
             }
         }
     }

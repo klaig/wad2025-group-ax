@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import { initializeDatabase } from './config/database.js'
 import postsRouter from './routes/posts.js'
+import authRouter from './routes/auth.js'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -16,6 +17,7 @@ app.use(express.json())
 
 // Routes
 app.use('/api/posts', postsRouter)
+app.use('/api/auth', authRouter)
 
 // Initialize database and start server
 initializeDatabase()
