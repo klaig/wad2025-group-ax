@@ -1,5 +1,5 @@
 <template>
-    <article class="post">
+    <article class="post" @click="openPost">
         <div class="post-header">
             <img src="/images/icons8-test-account-50.png" :alt="post.author" class="post-avatar">
             <span class="post-author">{{ post.author }}</span>
@@ -31,6 +31,9 @@ export default {
                 return image
             }
             return '/' + image
+        },
+        openPost() {
+            this.$router.push('/posts/${this.post.id}')
         }
     }
 }

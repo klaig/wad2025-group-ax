@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getAllPosts, getPostById, incrementLike, resetAllLikes, addPost, deleteAllPosts } from '../models/index.js'
+import { getAllPosts, getPostById, incrementLike, resetAllLikes, addPost, deleteAllPosts, updatePost, deletePostById } from '../models/index.js'
 
 const router = Router()
 
@@ -62,6 +62,37 @@ router.post('/:id/like', async (req, res) => {
     } catch (error) {
         console.error('Error liking post:', error)
         res.status(500).json({ error: 'Failed to like post' })
+    }
+})
+
+// PUT /api/posts/:id
+router.put('/:id', async (req, res) => {
+    try {
+        const id = Number(req.params.id)
+        const { author, date, title, description, image} = req.body
+        if (!author || !date) {
+            return res.status(400).json({ error: 'author and date are required'})
+        }
+        const updated = await updatePost(id, {author, date, title, description, image})
+        if (!updated) return res.status(404).json({ error: 'Post not found'})
+        res.json(updated)    
+    } catch (error) {
+        console.error('Error updating post:', error)
+        res.status(500).json({ error: 'Failed to update post'})
+    }
+})
+
+// DELETE /api/posts/:id
+router.delete('/:id', async (req, res) => {
+    try {
+        const id = Number(req.params.id)
+        const deleted = await deletePostById(id)
+        if (!deleted) return res.status(404).json({ error: 'Post not found' })
+        
+        res.json({ success: true})    
+    } catch (error) {
+        console.error('Error deleting post', error)
+        res.status(500).json({ error: 'Failed to delete post'})
     }
 })
 
