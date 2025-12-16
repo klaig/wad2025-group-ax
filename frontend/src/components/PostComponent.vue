@@ -3,7 +3,7 @@
         <div class="post-header">
             <img src="/images/icons8-test-account-50.png" :alt="post.author" class="post-avatar">
             <span class="post-author">{{ post.author }}</span>
-            <span class="post-date">{{ post.date }}</span>
+            <span class="post-date">{{ formatDate(post.date) }}</span>
         </div>
         <div class="post-content">
             <img v-if="post.image" :src="getImageUrl(post.image)" :alt="post.title" class="post-image">
@@ -23,6 +23,12 @@ export default {
     name: 'PostComponent',
     props: ['post'],
     methods: {
+        formatDate(dateString) {
+            if (!dateString) return 'N/A'
+            return new Date(dateString).toLocaleDateString('en-GB', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            })
+        },
         likePost() {
             this.$store.dispatch('likePost', this.post.id)
         },
