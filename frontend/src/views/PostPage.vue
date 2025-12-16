@@ -1,39 +1,35 @@
 <template>
-    <div v-if="loading" class="post-page">
+    <div v-if="loading && !isNewPost" class="post-page">
         <p>Loading post...</p>
     </div>
     <div v-else-if="error" class="post-page">
         <p class="error-message">{{ error }}</p>
-        <p v-if="error === 'Unauthorized'">Please log in to view and manage posts.</p>
     </div>
 
     <div v-else class="post-page">
-        <h2>Post ID #{{ id }}</h2>
+        <h2>{{ isNewPost ? 'Create New Post' : `Edit Post ID #${id}` }}</h2>
 
-        <div class="field">
-            <label>Author</label>
-            <input :value="postData.username" readonly /> 
+        <div v-if="!isNewPost">
+            <div class="field">
+                <label>Author</label>
+                <input :value="postData.username" readonly />
+            </div>
+            <div class="field">
+                <label>Posted Date</label>
+                <input type="text" :value="formatDate(postData.date)" readonly />
+            </div>
         </div>
 
         <div class="field">
-            <label>Posted Date</label>
-            <input type="text" :value="formatDate(postData.date)" readonly />
+            <label>Content (Body)</label>
+            <textarea v-model="form.content" rows="6" placeholder="Enter the body of your post..."></textarea>
         </div>
 
-        <div class="field">
-            <label>Content</label>
-            <textarea v-model="form.content" rows="6"></textarea>
-        </div>
-
-        <div class="field" v-if="postData.image">
-            <label>Image URL (Read-only for now)</label>
-            <input :value="postData.image" readonly />
-            <img :src="postData.image" alt="Post Image" class="post-image-preview">
-        </div>
-        
         <div class="buttons">
-            <button @click="updatePost" class="nav-btn" style="background-color: #A3BE8C;">Update Post</button>
-            <button @click="deletePost" class="nav-btn" style="background-color: #BF616A;">Delete Post</button>
+            <button v-if="!isNewPost" @click="updatePost" class="nav-btn" style="background-color: #A3BE8C;">Update Post</button>
+            <button v-if="!isNewPost" @click="deletePost" class="nav-btn" style="background-color: #BF616A;">Delete Post</button>
+
+            <button v-if="isNewPost" @click="createPost" :disabled="!isContentValid" class="nav-btn create-post">Create Post</button>
         </div>
     </div>
 </template>
@@ -59,11 +55,22 @@ export default {
         },
         token() {
             return this.$store.state.token
+        },
+        isNewPost() {
+            return this.$route.path === '/add'
+        },
+        isContentValid() {
+            return this.form.content.trim().length > 0;
         }
     },
 
     mounted() {
-        this.fetchPost()
+        if (!this.isNewPost) {
+            this.fetchPost()
+        } else {
+            this.loading = false
+            this.form.content = ''
+        }
     },
 
     methods: {
@@ -83,23 +90,19 @@ export default {
                  this.loading = false
                  return
             }
-
             try {
                 const response = await fetch(`http://localhost:3000/api/posts/${this.id}`, {
                     headers: { 'Authorization': `Bearer ${this.token}` }
                 })
-
                 if (response.status === 401 || response.status === 403) {
                      throw new Error('Unauthorized')
                 }
                 if (!response.ok) {
                     throw new Error('Post not found or API error')
                 }
-                
                 const post = await response.json()
                 this.postData = post
-                this.form.content = post.content ?? ''
-                
+                this.form.content = post.content ?? post.description ?? post.title ?? ''
             } catch (e) {
                 this.error = e.message
             } finally {
@@ -107,25 +110,39 @@ export default {
             }
         },
 
+        async createPost() {
+            if (!this.isContentValid) {
+                alert('Post content cannot be empty.')
+                return
+            }
+
+            const postData = { content: this.form.content.trim() }
+
+            try {
+                await this.$store.dispatch('createPost', postData) 
+                
+                this.$router.push('/')
+            } catch (error) {
+                console.error('Error creating post:', error.message)
+                alert('Failed to create post. Check console.')
+            }
+        },
+
         async updatePost() {
             try {
-                const dataToSend = { content: this.form.content } 
-
+                const dataToSend = { content: this.form.content }
                 const response = await fetch(`http://localhost:3000/api/posts/${this.id}`, {
                     method: 'PUT',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.token}` // SEND TOKEN
+                        'Authorization': `Bearer ${this.token}`
                     },
                     body: JSON.stringify(dataToSend)
                 })
-
                 if (!response.ok) throw new Error('Failed to update post')
-
                 await this.$store.dispatch('fetchPosts')
-                await this.fetchPost() 
+                await this.fetchPost()
                 alert('Post updated successfully!')
-
             } catch (e) {
                 alert(`Error updating post: ${e.message}`)
             }
@@ -137,15 +154,12 @@ export default {
                 const response = await fetch(`http://localhost:3000/api/posts/${this.id}`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${this.token}` // SEND TOKEN
+                        'Authorization': `Bearer ${this.token}`
                     }
                 })
-
                 if (!response.ok) throw new Error('Failed to delete post')
-
-                await this.$store.dispatch('fetchPosts') 
+                await this.$store.dispatch('fetchPosts')
                 this.$router.push('/')
-                
             } catch (e) {
                 alert(`Error deleting post: ${e.message}`)
             }
@@ -188,18 +202,12 @@ export default {
     gap: 10px;
     margin-top: 20px;
 }
-.post-image-preview {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-    margin-top: 10px;
-}
 .error-message {
     color: #BF616A;
     font-weight: bold;
     text-align: center;
 }
-.nav-btn { 
+.nav-btn {
     border: none;
     cursor: pointer;
     font-size: 16px;
@@ -209,6 +217,6 @@ export default {
     transition: opacity 0.3s;
 }
 .nav-btn:hover {
-    opacity: 0.85
+    opacity: 0.85;
 }
 </style>

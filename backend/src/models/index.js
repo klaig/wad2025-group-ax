@@ -31,24 +31,31 @@ export async function resetAllLikes() {
 }
 
 // Update existing post
-export async function updatePost(id, { author, date, title, description, image }) {
+export async function updatePost(postId, userId, { content }) {
     const pool = await getPool()
+
     const result = await pool.query(
         `UPDATE posts 
-         SET author = $1, date = $2, title = $3, description = $4, image = $5 
-         WHERE id = $6 
+         SET description = $1
+         WHERE id = $2 AND user_id = $3
          RETURNING *`,
-        [author, date, title ?? null, description ?? null, image ?? null, id]
+        [content, postId, userId]
     )
     return result.rows[0]
 }
 
 // Add new post
-export async function addPost({author, date, title, description, image}) {
-    const pool = await getPool()
-    const result = await pool.query('INSERT INTO posts (author, date, title, description, image, likes) VALUES ($1, $2, $3, $4, $5, 0) RETURNING *',
-        [author, date, title ?? null, description ?? null, image ?? null]
+export const addPost = async (userId, username, content) => {
+    const now = new Date().toISOString()
+    const pool = await getPool() 
+
+    const result = await pool.query(
+        `INSERT INTO posts (user_id, author, description, date, likes) 
+         VALUES ($1, $2, $3, $4, 0)
+         RETURNING *`,
+        [userId, username, content, now] 
     )
+
     return result.rows[0]
 }
 

@@ -76,6 +76,23 @@ export default createStore({
             })
             commit('SET_POSTS', [])
         },
+        async createPost({ state }, postData) {
+            const response = await fetch('http://localhost:3000/api/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${state.token}`
+                },
+                body: JSON.stringify(postData)
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Failed to create post.')
+            }
+
+            return response.json()
+        },
         async signup({ commit }, userData) {
             const response = await fetch('http://localhost:3000/api/auth/signup', {
                 method: 'POST',

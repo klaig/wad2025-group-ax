@@ -11,6 +11,7 @@ const routes = [
     { path: '/signup', component: SignupPage },
     { path: '/login', component: LoginPage },
     { path: '/posts/:id', component: PostPage },
+    { path: '/add', component: PostPage, meta: { requiresAuth: true } },
     { path: '/contact', component: ContactPage }
 ]
 

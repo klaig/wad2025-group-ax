@@ -1,4 +1,4 @@
-<template>
+ <template>
     <article class="post" @click="openPost">
         <div class="post-header">
             <img src="/images/icons8-test-account-50.png" :alt="post.author" class="post-avatar">
@@ -37,4 +37,4 @@ export default {
         }
     }
 }
-</script>
+</script> 
